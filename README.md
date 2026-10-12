@@ -129,7 +129,12 @@ nothing-theme-switch pure-white   # direct
 ```
 
 Switching rewrites only the managed theme fragments + wallpaper and
-live-reloads Hyprland/Kitty/SwayNC/Waybar. Nothing else is touched.
+live-reloads the running apps. Nothing else is touched.
+
+Wallpapers (`Wallpapers/`, converted to exact 1920×1080 center crops —
+no synthetic fill): AMOLED BLACK uses the dark perforated phone art,
+PURE WHITE the grey leaf art; the lockscreen always uses the dark
+geometric art via Noctalia's dedicated lockscreen background.
 
 ## Keybind reference (`$mainMod` = SUPER)
 
@@ -154,7 +159,7 @@ have an older keybind map, open an issue and they will be reconciled.
 | [NEW] `SUPER + SHIFT + SPACE` | Toggle floating |
 | [NEW] `SUPER + P` / `SUPER + O` | Pseudotile / togglesplit |
 | [NEW] `SUPER + SHIFT + Q` | Exit Hyprland |
-| [NEW] `SUPER + ←→↑↓` / `H L K J` | Focus |
+| [NEW] `SUPER + ←→↑↓` / `H J K` + `→` | Focus (SUPER+L is lock; right via arrow) |
 | [NEW] `SUPER + TAB` | Cycle windows |
 | [NEW] `SUPER + SHIFT + ←→↑↓` / `H L K J` | Move window |
 | [NEW] `SUPER + 1..9,0` | Workspaces 1–10 |
@@ -162,7 +167,7 @@ have an older keybind map, open an issue and they will be reconciled.
 | [NEW] `SUPER + S` / `SUPER + SHIFT + S` | Scratchpad toggle / send |
 | [NEW] `SUPER + N` / `SUPER + SHIFT + D` | Notification panel / do-not-disturb (Noctalia) |
 | [NEW] `PRINT` / `SUPER + PRINT` | Region / fullscreen screenshot (Noctalia) |
-| [NEW] `SUPER + X` / `SUPER + CTRL + L` | Session menu / lock with animated lockscreen (Noctalia) |
+| [NEW] `SUPER + X` / `SUPER + L` | Session menu / lock with animated lockscreen (Noctalia) |
 | [NEW] `SUPER + CTRL + T` | Theme switcher |
 | `SUPER + drag / right-drag` | Move / resize window |
 | Media/brightness keys | Noctalia volume/brightness/media IPC |

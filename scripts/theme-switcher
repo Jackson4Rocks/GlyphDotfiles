@@ -46,11 +46,11 @@ apply_theme() {
 
     # Wallpaper follows the theme (assets ship both variants).
     case "$theme" in
-        amoled-black) wallpaper="nothing-black.png" ;;
-        pure-white)   wallpaper="nothing-white.png" ;;
+        amoled-black) wallpaper="nothing-dark-16x9.png" ;;
+        pure-white)   wallpaper="nothing-grey-16x9.png" ;;
     esac
-    if [ -f "$REPO_DIR/assets/wallpapers/$wallpaper" ]; then
-        cp "$REPO_DIR/assets/wallpapers/$wallpaper" "$CONFIG_HOME/hypr/nothing-wallpaper.png"
+    if [ -f "$REPO_DIR/Wallpapers/$wallpaper" ]; then
+        cp "$REPO_DIR/Wallpapers/$wallpaper" "$CONFIG_HOME/hypr/nothing-wallpaper.png"
     fi
 
     # Fuzzel has no include directive: replace the managed color block.

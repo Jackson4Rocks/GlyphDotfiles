@@ -243,10 +243,11 @@ copy_file "themes/$THEME/swaync-theme.css" ".config/swaync/nothing-theme.css"
 copy_file "themes/$THEME/fish-theme.fish"  ".config/fish/nothing-theme.fish"
 copy_file "themes/$THEME/yazi-theme.toml"  ".config/yazi/theme.toml"
 case "$THEME" in
-    amoled-black) WALLPAPER="nothing-black.png" ;;
-    pure-white)   WALLPAPER="nothing-white.png" ;;
+    amoled-black) WALLPAPER="nothing-dark-16x9.png" ;;
+    pure-white)   WALLPAPER="nothing-grey-16x9.png" ;;
 esac
-copy_file "assets/wallpapers/$WALLPAPER" ".config/hypr/nothing-wallpaper.png"
+copy_file "Wallpapers/$WALLPAPER" ".config/hypr/nothing-wallpaper.png"
+link_file "Wallpapers/nothing-lockscreen-16x9.png" ".config/hypr/nothing-lockscreen.png"
 if [ "$DRY_RUN" -eq 0 ]; then
     # Apply the fuzzel color block from the chosen theme.
     tmp="$(mktemp)"

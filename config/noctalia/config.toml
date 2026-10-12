@@ -67,6 +67,7 @@ pure_black_dark = true
 [lockscreen]
 enabled = true
 blurred_desktop = true
+wallpaper = "~/.config/hypr/nothing-lockscreen.png"
 transition = ["fade", "zoom"]
 transition_duration = 700
 edge_smoothness = 0.35

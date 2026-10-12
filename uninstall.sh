@@ -49,6 +49,7 @@ echo "uninstall: restoring from $SRC"
 
 LINKED=".config/hypr/hyprland.conf .config/hypr/appearance.conf .config/hypr/keybinds.conf
 .config/hypr/autostart.conf .config/hypr/monitors.conf .config/hypr/hyprpaper.conf
+.config/hypr/nothing-lockscreen.png
 .config/kitty/kitty.conf
 .config/fish/config.fish .config/fish/conf.d/00-env.fish .config/fish/conf.d/10-aliases.fish
 .config/fish/conf.d/20-prompt.fish .config/fish/conf.d/30-startup.fish
@@ -113,6 +114,7 @@ restore ".config/hypr/autostart.conf"
 restore ".config/hypr/monitors.conf"
 restore ".config/hypr/hyprpaper.conf"
 restore ".config/hypr/nothing-wallpaper.png"
+restore ".config/hypr/nothing-lockscreen.png"
 restore ".config/hypr/nothing-theme.conf"
 restore ".config/kitty/kitty.conf"
 restore ".config/kitty/nothing-theme.conf"
