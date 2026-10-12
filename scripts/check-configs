@@ -130,7 +130,7 @@ if command -v python3 >/dev/null 2>&1; then
             bad "json $j"
         fi
     done
-    for t in "$REPO_DIR"/config/yazi/yazi.toml "$REPO_DIR"/themes/*/yazi-theme.toml; do
+    for t in "$REPO_DIR"/config/yazi/yazi.toml "$REPO_DIR"/config/noctalia/config.toml "$REPO_DIR"/themes/*/yazi-theme.toml; do
         if python3 -c "import tomllib; tomllib.load(open('$t','rb'))" 2>/dev/null; then
             ok "toml $t"
         else

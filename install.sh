@@ -214,11 +214,26 @@ link_file "config/waybar/config.jsonc" ".config/waybar/config.jsonc"
 link_file "config/waybar/style.css"    ".config/waybar/style.css"
 link_file "config/swaync/config.json"  ".config/swaync/config.json"
 link_file "config/swaync/style.css"    ".config/swaync/style.css"
+link_file "config/noctalia/config.toml" ".config/noctalia/config.toml"
+link_file "config/noctalia/palettes/NothingMono.json" ".config/noctalia/palettes/NothingMono.json"
 link_file "config/fastfetch/config.jsonc"     ".config/fastfetch/config.jsonc"
 link_file "config/fastfetch/nothing-logo.txt" ".config/fastfetch/nothing-logo.txt"
 
 # fuzzel.ini is COPIED (theme-switcher rewrites its color block in place).
 copy_file "config/fuzzel/fuzzel.ini" ".config/fuzzel/fuzzel.ini"
+
+# ── 7b. Hyprland 0.56 prefers hyprland.lua over hyprland.conf when both ─────
+# exist (verified in the compositor log). A stale .lua would silently shadow
+# every Hyprland file above — including all keybinds — so back it aside.
+for lua in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/hypr/miniland.lua"; do
+    if [ -f "$lua" ] && [ ! -L "$lua" ]; then
+        do_backup "$lua"
+        if dry "remove shadowing $lua (backed up)"; then :; else
+            rm -f -- "$lua"
+            log "removed shadowing $lua (backed up; classic hyprland.conf now loads)"
+        fi
+    fi
+done
 
 # ── 8. Theme files (copies — managed by theme-switcher) ──────────────────
 copy_file "themes/$THEME/hypr-theme.conf"  ".config/hypr/nothing-theme.conf"
@@ -284,6 +299,10 @@ install: done.
                     chsh -s /usr/bin/fish
                   (manual step — the installer never changes it for you)
   fonts ......... run ./assets/fonts/install-fonts.sh for Doto (dot-matrix)
-  session ....... log out and pick the Hyprland session, or 'hyprctl reload'
-                  if you are already in one. Nothing was restarted for you.
+  session ....... LOG OUT and back into the Hyprland session.
+                  This is REQUIRED once: Hyprland 0.56 loads hyprland.lua
+                  when present and only switches to hyprland.conf on a
+                  fresh login (a mere 'hyprctl reload' keeps the old
+                  source). Do not reload before logging out.
+                  After that, 'hyprctl reload' applies tweaks normally.
 EOF

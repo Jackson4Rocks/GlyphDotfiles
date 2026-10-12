@@ -56,6 +56,7 @@ LINKED=".config/hypr/hyprland.conf .config/hypr/appearance.conf .config/hypr/key
 .config/waybar/config.jsonc .config/waybar/style.css
 .config/swaync/config.json .config/swaync/style.css
 .config/fastfetch/config.jsonc .config/fastfetch/nothing-logo.txt
+.config/noctalia/config.toml .config/noctalia/palettes/NothingMono.json
 .local/bin/miniland .local/bin/nothing-theme-switch"
 # functions dir handled with a glob below.
 
@@ -104,6 +105,8 @@ restore() {
 
 # Everything the installer may have created (linked or copied).
 restore ".config/hypr/hyprland.conf"
+restore ".config/hypr/hyprland.lua"
+restore ".config/hypr/miniland.lua"
 restore ".config/hypr/appearance.conf"
 restore ".config/hypr/keybinds.conf"
 restore ".config/hypr/autostart.conf"
@@ -116,6 +119,8 @@ restore ".config/kitty/nothing-theme.conf"
 restore ".config/fish/config.fish"
 restore ".config/fish/nothing-theme.fish"
 restore ".config/fuzzel/fuzzel.ini"
+restore ".config/noctalia/config.toml"
+restore ".config/noctalia/palettes/NothingMono.json"
 restore ".config/yazi/theme.toml"
 restore ".config/waybar/nothing-theme.css"
 restore ".config/swaync/nothing-theme.css"

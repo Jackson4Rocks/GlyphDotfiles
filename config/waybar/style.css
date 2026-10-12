@@ -96,7 +96,7 @@ window#waybar {
 #battery,
 #tray,
 #custom-power {
-    color: @muted;
+    color: @fg;
     background: @surface;
     border: 1px solid @border;
     border-radius: 13px;

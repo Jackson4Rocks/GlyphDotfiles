@@ -73,6 +73,20 @@ apply_theme() {
     printf '%s\n' "$theme" > "$STATE_FILE"
     echo "Theme applied: $theme"
 
+    # Noctalia follows the theme via its light/dark mode (single
+    # NothingMono palette covers both). GUI tweaks are preserved —
+    # only the mode line is touched.
+    case "$theme" in
+        amoled-black) nmode="dark" ;;
+        pure-white)   nmode="light" ;;
+    esac
+    if [ -f "$CONFIG_HOME/noctalia/config.toml" ]; then
+        tmpn="$(mktemp)"
+        sed "s/^mode = \".*\"/mode = \"$nmode\"/" "$CONFIG_HOME/noctalia/config.toml" > "$tmpn"
+        mv "$tmpn" "$CONFIG_HOME/noctalia/config.toml"
+        command -v noctalia >/dev/null 2>&1 && noctalia msg config-reload >/dev/null 2>&1 || true
+    fi
+
     # Live-reload what is already running; failures are non-fatal.
     # (swaync-client -R can block on some builds, so it is guarded.)
     command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true

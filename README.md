@@ -21,7 +21,8 @@ nothing-dotfiles/
 ├── install.sh                 # safe installer (backup → symlink → theme)
 ├── uninstall.sh               # restores the newest backup
 ├── config/                    # static configs (deployed as symlinks)
-│   ├── fish/  hypr/  kitty/  yazi/  fastfetch/  waybar/  fuzzel/  swaync/
+│   ├── fish/  hypr/  kitty/  yazi/  fastfetch/  noctalia/
+│   ├── waybar/  fuzzel/  swaync/    # fallback shell, not autostarted
 ├── themes/                    # per-theme fragments (deployed as copies)
 │   ├── amoled-black/  pure-white/    # tokens.sh + 7 app fragments each
 ├── scripts/
@@ -53,29 +54,31 @@ nothing-dotfiles/
 - Session: Hyprland on Wayland. KDE Plasma or other WMs are **not replaced**;
   these configs only activate inside a Hyprland session.
 - Shell: Fish. Terminal: Kitty. Files: Yazi. Sysinfo: Fastfetch.
-- Bar: Waybar. Launcher/picker: Fuzzel. Notifications: SwayNC.
-- The bar is a single floating top pill: launcher dot, capsule workspaces
-  (empty = small dot, open windows = expanded bubble, focused = inverted),
-  dot-matrix 12-hour clock, icon segments for CPU/MEM/VOL/NET/BAT, tray,
-  power — monochrome, no gradients.
-- Helpers you already have are reused: grim/slurp/swappy, cliphist,
-  hyprlock, hyprpaper, hypridle, pamixer, brightnessctl, playerctl,
+- **Base desktop shell: Noctalia v5** (bar, launcher, notifications,
+  control center, session menu, lockscreen, wallpaper — see below).
+  Waybar + Fuzzel + SwayNC configs ship as a documented fallback but are
+  not autostarted: one bar, one notification daemon at a time.
+- Helpers reused where needed: grim/slurp, cliphist,
   eza/zoxide/fzf/bat (all optional with graceful fallbacks).
 
-### Noctalia: deliberately omitted
+### Noctalia v5 is the base shell
 
-Noctalia Shell is **not included** in this rice. If your session was running
-it (as here), the installer does not stop it — after installing, run
-`hyprctl reload`, start `waybar` + `swaync` + `hyprpaper` (or just log out
-and back in: `autostart.conf` launches them), then quit Noctalia so the two
-shells don't stack bars. To go back, start `noctalia` again and
-`pkill waybar`.
-Waybar + Fuzzel + SwayNC cover bar, launcher and notifications with a
-smaller, actively maintained footprint and zero overlapping daemons
-(SwayNC is the single notification daemon — dunst stays off; Fuzzel is the
-single launcher — rofi/wofi configs are not shipped). If you later install
-Noctalia, these configs do not conflict with it beyond the usual
-one-bar-at-a-time rule.
+Noctalia owns the bar, app launcher, notifications, control center,
+clipboard history, session menu, lockscreen and wallpaper — all styled
+Nothing-monochrome via `config/noctalia/config.toml` and the single
+`palettes/NothingMono.json` (its `dark` section is AMOLED BLACK, its
+`light` section PURE WHITE; `nothing-theme-switch` flips only the mode,
+so GUI tweaks survive switching).
+
+- Bar: floating capsule, launcher + workspaces + window left, Doto 12-hour
+  clock center, media/network/volume/battery/tray/notifications right.
+- Lockscreen (`SUPER+CTRL+L`): blurred desktop, tint, fade+zoom
+  transitions, big centered Doto 12-hour clock. No hyprlock needed —
+  a second locker would only compete with it.
+- Notifications: Noctalia daemon only. SwayNC/Dunst stay off.
+- Waybar/Fuzzel/SwayNC configs remain in the repo as a fallback shell
+  ( brighter `@fg` segments included); start them manually and quit
+  Noctalia if you ever want to compare. Never run both bars at once.
 
 ## Installation
 
@@ -143,7 +146,10 @@ have an older keybind map, open an issue and they will be reconciled.
 | [NEW] `SUPER + RETURN` | Terminal (kitty) |
 | [NEW] `SUPER + E` | File manager (yazi in kitty) |
 | [NEW] `SUPER + B` | Browser (xdg-open) |
-| [NEW] `SUPER + D` / `SUPER + SPACE` | Launcher (fuzzel) |
+| [NEW] `SUPER + D` | App launcher (Noctalia) |
+| [NEW] `SUPER + SPACE` | App picker, large panel (fuzzel, fallback) |
+| [NEW] `SUPER + S` / `SUPER + V` / `SUPER + W` | Control center / clipboard history / wallpaper (Noctalia) |
+| [NEW] `SUPER + COMMA` | Noctalia settings |
 | [NEW] `SUPER + Q` | Close window (graceful) |
 | [NEW] `SUPER + F` / `SUPER + SHIFT + F` | Fullscreen / maximize |
 | [NEW] `SUPER + SHIFT + SPACE` | Toggle floating |
@@ -155,12 +161,12 @@ have an older keybind map, open an issue and they will be reconciled.
 | [NEW] `SUPER + 1..9,0` | Workspaces 1–10 |
 | [NEW] `SUPER + SHIFT + 1..9,0` | Move window to workspace |
 | [NEW] `SUPER + S` / `SUPER + SHIFT + S` | Scratchpad toggle / send |
-| [NEW] `SUPER + N` / `SUPER + SHIFT + D` | Notification panel / do-not-disturb |
-| [NEW] `PRINT` / `SUPER + PRINT` / `SUPER + SHIFT + PRINT` | Region / fullscreen / monitor screenshot |
-| [NEW] `SUPER + X` / `SUPER + CTRL + L` | Session menu (wlogout) / lock (hyprlock) |
+| [NEW] `SUPER + N` / `SUPER + SHIFT + D` | Notification panel / do-not-disturb (Noctalia) |
+| [NEW] `PRINT` / `SUPER + PRINT` | Region / fullscreen screenshot (Noctalia) |
+| [NEW] `SUPER + X` / `SUPER + CTRL + L` | Session menu / lock with animated lockscreen (Noctalia) |
 | [NEW] `SUPER + CTRL + T` | Theme switcher |
 | `SUPER + drag / right-drag` | Move / resize window |
-| Media/brightness keys | pamixer / brightnessctl / playerctl |
+| Media/brightness keys | Noctalia volume/brightness/media IPC |
 
 Minimize semantics: `SUPER+M` on a normal window shelves it to
 `special:miniland`; `SUPER+M` on a shelf window (or picking it with
@@ -205,7 +211,11 @@ Minimize semantics: `SUPER+M` on a normal window shelves it to
 - No session is started or restarted for you.
 - `SUPER+B` uses `xdg-open` (no browser assumed); edit `$browser` in
   `config/hypr/keybinds.conf` if you want a fixed one.
-- `SUPER+X` needs `wlogout` (optional; binding no-ops gracefully without it).
+- Hyprland 0.56 loads `hyprland.lua` instead of `hyprland.conf` when both
+  exist (seen in the compositor log). The installer backs any stale `.lua`
+  aside so the classic config — and all keybinds — actually load. After a
+  fresh install you must LOG OUT and back in once; `hyprctl reload` alone
+  keeps the old config source.
 - Full historical keybind parity beyond the three ★ bindings is unverified —
   the remaining map is documented as new (see table).
 - Hyprland configs are validated with the native `hyprland --verify-config`

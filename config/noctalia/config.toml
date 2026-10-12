@@ -1,0 +1,190 @@
+# NOTHING dotfiles — Noctalia v5 shell (the base shell of this rice).
+# Deployed to ~/.config/noctalia/config.toml (backed up first).
+# [theme] mode (dark/light) is managed by install.sh / scripts/theme-switcher;
+# everything else is safe to tune in the Noctalia settings GUI.
+
+[accessibility]
+ui_scale = 1.0
+high_contrast = false
+
+[shell]
+corner_radius_scale = 1.0
+font_family = "Doto"
+time_format = "{:%I:%M %p}"
+date_format = "%a, %x"
+telemetry_enabled = false
+clipboard_enabled = true
+clipboard_history_max_entries = 100
+clipboard_keep_from_closed_apps = true
+settings_show_advanced = true
+shared_gl_context = true
+
+[shell.animation]
+enabled = true
+speed = 1.0
+
+[shell.shadow]
+direction = "down"
+alpha = 0.48
+
+[shell.panel]
+transparency_mode = "solid"
+borders = true
+shadow = true
+launcher_placement = "floating"
+clipboard_placement = "floating"
+control_center_placement = "attached"
+wallpaper_placement = "floating"
+session_placement = "attached"
+launcher_position = "center"
+clipboard_position = "center"
+open_near_click_control_center = false
+open_near_click_launcher = false
+open_near_click_clipboard = false
+open_near_click_wallpaper = false
+open_near_click_session = false
+
+[wallpaper]
+enabled = true
+fill_mode = "crop"
+transition = ["fade", "zoom"]
+transition_duration = 700
+edge_smoothness = 0.25
+transition_on_startup = true
+directory = "~/.local/share/wallpapers"
+directory_dark = "~/.local/share/wallpapers"
+directory_light = "~/.local/share/wallpapers"
+
+[wallpaper.default]
+path = "~/.config/hypr/nothing-wallpaper.png"
+
+[theme]
+mode = "dark"
+source = "custom"
+custom_palette = "NothingMono"
+pure_black_dark = true
+
+[lockscreen]
+enabled = true
+blurred_desktop = true
+transition = ["fade", "zoom"]
+transition_duration = 700
+edge_smoothness = 0.35
+blur_intensity = 0.60
+tint_intensity = 0.55
+
+[lockscreen_widgets]
+enabled = true
+schema_version = 2
+
+[lockscreen_widgets.widget.clock_main]
+type = "clock"
+output = ""
+cx = 960.0
+cy = 180.0
+box_width = 720.0
+box_height = 150.0
+rotation = 0.0
+
+[lockscreen_widgets.widget.clock_main.settings]
+clock_style = "digital"
+format = "{:%I:%M %p}"
+background = false
+color = "on_surface"
+shadow = true
+center_text = true
+circle = false
+
+[notification]
+enable_daemon = true
+show_app_name = true
+show_actions = true
+layer = "top"
+background_opacity = 1.0
+offset_x = 18
+offset_y = 12
+
+[osd]
+position = "top_right"
+position_vertical = "top_center"
+orientation = "horizontal"
+scale = 1.0
+background_opacity = 1.0
+offset_x = 18
+offset_y = 12
+
+[control_center]
+sidebar = "compact"
+show_shortcut_labels = true
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "nightlight"
+
+[[control_center.shortcuts]]
+type = "dark_mode"
+
+[[control_center.shortcuts]]
+type = "session"
+
+[system.monitor]
+enabled = true
+cpu_poll_seconds = 2.0
+memory_poll_seconds = 2.0
+network_poll_seconds = 3.0
+disk_poll_seconds = 10.0
+
+[bar.main]
+position = "top"
+thickness = 46
+background_opacity = 0.0
+radius = 23
+margin_ends = 14
+margin_edge = 10
+padding = 10
+widget_spacing = 6
+scale = 1.0
+font_scale = 1.15
+shadow = true
+auto_hide = false
+reserve_space = true
+capsule = true
+capsule_fill = "surface"
+capsule_radius = 15
+capsule_opacity = 1.0
+capsule_border = "outline"
+
+start = ["launcher", "workspaces", "active_window"]
+center = ["clock"]
+end = ["media", "network", "volume", "battery", "tray", "notifications", "control-center", "session"]
+
+[widget.clock]
+format = "{:%I:%M:%S %p}"
+scale = 1.08
+font_weight = 700
+
+[widget.notifications]
+hide_when_no_unread = true
+
+[widget.network]
+show_label = true
+
+[widget.battery]
+show_percent = true
+
+[desktop_widgets]
+enabled = false
+
+[location]
+auto_locate = false
+
+[dock]
+enabled = false
