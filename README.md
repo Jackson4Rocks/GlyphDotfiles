@@ -146,8 +146,7 @@ have an older keybind map, open an issue and they will be reconciled.
 | [NEW] `SUPER + RETURN` | Terminal (kitty) |
 | [NEW] `SUPER + E` | File manager (yazi in kitty) |
 | [NEW] `SUPER + B` | Browser (xdg-open) |
-| [NEW] `SUPER + D` | App launcher (Noctalia) |
-| [NEW] `SUPER + SPACE` | App picker, large panel (fuzzel, fallback) |
+| [NEW] `SUPER + D` / `SUPER + SPACE` | App picker/search (Noctalia launcher) |
 | [NEW] `SUPER + S` / `SUPER + V` / `SUPER + W` | Control center / clipboard history / wallpaper (Noctalia) |
 | [NEW] `SUPER + COMMA` | Noctalia settings |
 | [NEW] `SUPER + Q` | Close window (graceful) |
