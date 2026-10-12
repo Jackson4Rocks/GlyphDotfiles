@@ -29,7 +29,8 @@ fi
 # ── Shell scripts (POSIX) ────────────────────────────────────────────────
 for f in "$REPO_DIR"/install.sh "$REPO_DIR"/uninstall.sh \
          "$REPO_DIR"/scripts/theme-switcher "$REPO_DIR"/scripts/check-configs \
-         "$REPO_DIR"/scripts/miniland "$REPO_DIR"/assets/fonts/install-fonts.sh; do
+         "$REPO_DIR"/scripts/miniland "$REPO_DIR"/scripts/nothing-weather \
+         "$REPO_DIR"/assets/fonts/install-fonts.sh; do
     [ -e "$f" ] || continue
     if sh -n "$f" 2>/dev/null; then
         ok "sh -n $f"

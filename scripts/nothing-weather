@@ -1,0 +1,30 @@
+#!/bin/sh
+# nothing-weather — cached wttr.in readout for the waybar rail.
+# Prints like "17°C", or "—" when offline. 30-minute disk cache.
+set -eu
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/nothing"
+CACHE_FILE="$CACHE_DIR/weather"
+MAX_AGE=1800
+
+if [ -f "$CACHE_FILE" ]; then
+    age=$(($(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0)))
+    if [ "$age" -lt "$MAX_AGE" ]; then
+        cat "$CACHE_FILE"
+        exit 0
+    fi
+fi
+
+mkdir -p "$CACHE_DIR"
+if command -v curl >/dev/null 2>&1; then
+    out="$(curl -s --max-time 8 'wttr.in/?format=%t' 2>/dev/null | tr -d ' \n' || true)"
+    case "$out" in
+        *[0-9]*°*) printf '%s' "$out" | tee "$CACHE_FILE"; exit 0 ;;
+    esac
+fi
+
+if [ -f "$CACHE_FILE" ]; then
+    cat "$CACHE_FILE"
+else
+    printf '—'
+fi

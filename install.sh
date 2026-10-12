@@ -197,6 +197,17 @@ link_file "config/fish/conf.d/30-startup.fish" ".config/fish/conf.d/30-startup.f
 for fn in "$REPO_DIR"/config/fish/functions/*.fish; do
     link_file "config/fish/functions/$(basename -- "$fn")" ".config/fish/functions/$(basename -- "$fn")"
 done
+# A pre-existing, unmanaged functions/fish_greeting.fish would run alongside
+# conf.d/30-startup.fish and print the greeting twice — back it up and step
+# aside (restore it from the backup dir if you prefer your own greeting).
+GREET="$HOME/.config/fish/functions/fish_greeting.fish"
+if [ -f "$GREET" ] && [ ! -L "$GREET" ]; then
+    do_backup "$GREET"
+    if dry "remove conflicting $GREET (backed up)"; then :; else
+        rm -f -- "$GREET"
+        log "removed conflicting $GREET (backed up)"
+    fi
+fi
 link_file "config/yazi/yazi.toml"   ".config/yazi/yazi.toml"
 link_file "config/yazi/keymap.toml" ".config/yazi/keymap.toml"
 link_file "config/waybar/config.jsonc" ".config/waybar/config.jsonc"
@@ -248,6 +259,7 @@ else
     link_file "scripts/miniland" ".local/bin/miniland"
 fi
 link_file "scripts/theme-switcher" ".local/bin/nothing-theme-switch"
+link_file "scripts/nothing-weather" ".local/bin/nothing-weather"
 
 # ── 10. Done ─────────────────────────────────────────────────────────────
 # Drop the backup dir when nothing needed backing up (keeps "newest backup"

@@ -1,66 +1,117 @@
-{
-    "layer": "top",
-    "position": "top",
-    "height": 34,
-    "spacing": 6,
-    "margin-top": 8,
-    "margin-left": 12,
-    "margin-right": 12,
-    "exclusive": true,
-    "passthrough": false,
-    "reload_style_on_change": true,
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": ["group/nothing"],
-    "group/nothing": {
-        "orientation": "horizontal",
-        "modules": ["cpu", "memory", "pulseaudio", "network", "battery", "tray", "custom/power"]
-    },
-    "hyprland/workspaces": {
-        "format": "{icon}",
-        "format-icons": {
-            "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
-            "6": "6", "7": "7", "8": "8", "9": "9", "10": "0",
-            "urgent": "!",
-            "special": "S"
+[
+    {
+        "name": "top",
+        "layer": "top",
+        "position": "top",
+        "height": 36,
+        "spacing": 6,
+        "margin-top": 8,
+        "margin-left": 12,
+        "margin-right": 12,
+        "exclusive": true,
+        "passthrough": false,
+        "reload_style_on_change": true,
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "hyprland/window"],
+        "modules-center": ["clock#clock-top"],
+        "modules-right": ["cpu", "memory", "pulseaudio", "network", "battery", "tray", "custom/power"],
+        "custom/launcher": {
+            "format": "●",
+            "tooltip-format": "Launcher (SUPER+D)",
+            "on-click": "fuzzel"
         },
-        "persistent-workspaces": { "*": 5 },
-        "all-outputs": false
+        "hyprland/workspaces": {
+            "format": "{icon}",
+            "format-icons": {
+                "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
+                "6": "6", "7": "7", "8": "8", "9": "9", "10": "0",
+                "urgent": "!",
+                "special": "S"
+            },
+            "persistent-workspaces": { "*": 5 }
+        },
+        "hyprland/window": {
+            "format": "{class}",
+            "max-length": 36,
+            "separate-outputs": true
+        },
+        "clock#clock-top": {
+            "format": "{:%H:%M:%S}",
+            "interval": 1,
+            "tooltip-format": "{:%A %d %B %Y}"
+        },
+        "cpu": { "format": "CPU {usage}%", "interval": 5 },
+        "memory": { "format": "MEM {percentage}%", "interval": 10 },
+        "pulseaudio": {
+            "format": "VOL {volume}%",
+            "format-muted": "MUTE",
+            "on-click": "pamixer -t"
+        },
+        "network": {
+            "format-wifi": "NET {essid}",
+            "format-ethernet": "ETH",
+            "format-disconnected": "OFFLINE",
+            "tooltip-format": "{ifname}: {ipaddr}"
+        },
+        "battery": {
+            "format": "BAT {capacity}%",
+            "format-charging": "CHG {capacity}%",
+            "states": { "warning": 25, "critical": 10 }
+        },
+        "tray": { "spacing": 8 },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Session (SUPER+X)",
+            "on-click": "wlogout"
+        }
     },
-    "hyprland/window": {
-        "format": "{class}",
-        "max-length": 40,
-        "separate-outputs": true
-    },
-    "clock": {
-        "format": "{:%H:%M}",
-        "format-alt": "{:%a %d %b  ·  %H:%M}",
-        "tooltip-format": "<tt>{calendar}</tt>",
-        "on-click": "gnome-calendar 2>/dev/null || true"
-    },
-    "cpu": { "format": "CPU {usage}%", "interval": 5 },
-    "memory": { "format": "MEM {percentage}%", "interval": 10 },
-    "pulseaudio": {
-        "format": "VOL {volume}%",
-        "format-muted": "MUTE",
-        "on-click": "pamixer -t"
-    },
-    "network": {
-        "format-wifi": "NET {essid}",
-        "format-ethernet": "ETH",
-        "format-disconnected": "OFFLINE",
-        "tooltip-format": "{ifname}: {ipaddr}"
-    },
-    "battery": {
-        "format": "BAT {capacity}%",
-        "format-charging": "CHG {capacity}%",
-        "states": { "warning": 25, "critical": 10 }
-    },
-    "tray": { "spacing": 8 },
-    "custom/power": {
-        "format": "⏻",
-        "tooltip": true,
-        "tooltip-format": "Session (SUPER+X)",
-        "on-click": "wlogout"
+    {
+        "name": "rail",
+        "layer": "top",
+        "position": "right",
+        "width": 172,
+        "spacing": 10,
+        "margin-top": 60,
+        "margin-right": 12,
+        "margin-bottom": 12,
+        "exclusive": false,
+        "passthrough": false,
+        "reload_style_on_change": true,
+        "modules-center": [
+            "clock#rail-time",
+            "clock#rail-date",
+            "custom/weather",
+            "cpu#rail",
+            "memory#rail",
+            "pulseaudio#rail",
+            "battery#rail"
+        ],
+        "clock#rail-time": {
+            "format": "{:%H:%M}",
+            "interval": 5,
+            "tooltip-format": "{:%A %d %B %Y  ·  %H:%M:%S}"
+        },
+        "clock#rail-date": {
+            "format": "{:%a %d %b}",
+            "interval": 60,
+            "tooltip-format": "{:%A %d %B %Y}"
+        },
+        "custom/weather": {
+            "exec": "$HOME/.local/bin/nothing-weather",
+            "interval": 1800,
+            "format": "{}",
+            "tooltip-format": "Weather via wttr.in (30 min cache)"
+        },
+        "cpu#rail": { "format": "CPU {usage}%", "interval": 5 },
+        "memory#rail": { "format": "MEM {percentage}%", "interval": 10 },
+        "pulseaudio#rail": {
+            "format": "VOL {volume}%",
+            "format-muted": "MUTE",
+            "on-click": "pamixer -t"
+        },
+        "battery#rail": {
+            "format": "BAT {capacity}%",
+            "format-charging": "CHG {capacity}%",
+            "states": { "warning": 25, "critical": 10 }
+        }
     }
-}
+]

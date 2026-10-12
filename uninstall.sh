@@ -56,7 +56,7 @@ LINKED=".config/hypr/hyprland.conf .config/hypr/appearance.conf .config/hypr/key
 .config/waybar/config.jsonc .config/waybar/style.css
 .config/swaync/config.json .config/swaync/style.css
 .config/fastfetch/config.jsonc .config/fastfetch/nothing-logo.txt
-.local/bin/miniland .local/bin/nothing-theme-switch"
+.local/bin/miniland .local/bin/nothing-theme-switch .local/bin/nothing-weather"
 # functions dir handled with a glob below.
 
 remove_link() {

@@ -1,81 +1,167 @@
-/* NOTHING dotfiles — waybar */
+/* NOTHING dotfiles — waybar: floating pill bar + right widget rail.
+   Bar 1 (top): monochrome pill, capsule workspaces, dot-matrix clock.
+   Bar 2 (rail): floating widget cards à la the reference — big Doto time,
+   date, weather, system cards. Pure black/white via nothing-theme.css. */
 @import "nothing-theme.css";
 
 * {
     font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
     min-height: 0;
+    border: none;
 }
 
-window#waybar {
+/* ── TOP PILL BAR ─────────────────────────────────────────────────────── */
+window#waybar.top {
     background: @bg;
     color: @fg;
-    border: 1px solid @border;
-    border-radius: 17px;
+    border: 2px solid @border;
+    border-radius: 20px;
 }
 
-#workspaces {
+window#waybar.top #custom-launcher {
+    color: @accent-fg;
+    background: @accent;
+    border-radius: 50%;
+    font-size: 14px;
+    padding: 0 10px;
+    margin: 5px 0 5px 7px;
+}
+
+window#waybar.top #workspaces {
     background: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    margin: 4px 0 4px 6px;
-    padding: 0 4px;
+    border-radius: 13px;
+    margin: 5px 0;
+    padding: 0 5px;
 }
 
-#workspaces button {
+window#waybar.top #workspaces button {
     color: @faint;
     background: transparent;
-    border: none;
     border-radius: 9px;
     padding: 0 9px;
     margin: 3px 1px;
 }
 
-#workspaces button.active {
+window#waybar.top #workspaces button.active {
     color: @accent-fg;
     background: @accent;
     font-weight: bold;
+    padding: 0 14px;
 }
 
-#workspaces button.urgent {
+window#waybar.top #workspaces button.urgent {
     color: @accent-fg;
     background: @danger;
 }
 
-#window {
+window#waybar.top #window {
     color: @muted;
     margin-left: 10px;
 }
 
-#clock {
+/* Dot-matrix centerpiece */
+window#waybar.top #clock {
     font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
-    font-size: 17px;
+    font-size: 20px;
     font-weight: bold;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
     color: @fg;
     background: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 0 18px;
-    margin: 4px 0;
+    border-radius: 13px;
+    padding: 0 22px 0 26px;
+    margin: 5px 0;
 }
 
-#cpu, #memory, #pulseaudio, #network, #battery, #tray, #custom-power {
+/* Segmented right pills */
+window#waybar.top #cpu,
+window#waybar.top #memory,
+window#waybar.top #pulseaudio,
+window#waybar.top #network,
+window#waybar.top #battery,
+window#waybar.top #tray,
+window#waybar.top #custom-power {
     color: @muted;
     background: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 0 12px;
-    margin: 4px 0;
+    border-radius: 13px;
+    padding: 0 13px;
+    margin: 5px 0;
 }
 
-#pulseaudio.muted, #network.disconnected, #battery.critical {
+window#waybar.top #pulseaudio.muted,
+window#waybar.top #network.disconnected,
+window#waybar.top #battery.critical {
     color: @danger;
+    border-color: @danger;
 }
 
-#custom-power {
+window#waybar.top #custom-power {
     color: @fg;
-    margin-right: 6px;
+    font-size: 15px;
+    margin-right: 7px;
+}
+
+/* ── RIGHT WIDGET RAIL (floating cards) ───────────────────────────────── */
+window#waybar.rail {
+    background: transparent;
+    color: @fg;
+}
+
+window#waybar.rail #clock.rail-time {
+    font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
+    font-size: 44px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: @fg;
+    background: @bg;
+    border: 2px solid @border;
+    border-radius: 16px;
+    padding: 10px 8px 10px 12px;
+}
+
+window#waybar.rail #clock.rail-date {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: @muted;
+    background: @bg;
+    border: 1px solid @border;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+window#waybar.rail #custom-weather {
+    font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
+    font-size: 26px;
+    font-weight: bold;
+    color: @fg;
+    background: @bg;
+    border: 1px solid @border;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+window#waybar.rail #cpu,
+window#waybar.rail #memory,
+window#waybar.rail #pulseaudio,
+window#waybar.rail #battery {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: @muted;
+    background: @bg;
+    border: 1px solid @border;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+window#waybar.rail #pulseaudio.muted,
+window#waybar.rail #battery.critical {
+    color: @danger;
+    border-color: @danger;
 }
 
 tooltip {

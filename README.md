@@ -54,13 +54,25 @@ nothing-dotfiles/
   these configs only activate inside a Hyprland session.
 - Shell: Fish. Terminal: Kitty. Files: Yazi. Sysinfo: Fastfetch.
 - Bar: Waybar. Launcher/picker: Fuzzel. Notifications: SwayNC.
+- The bar is a **dual setup from one waybar process**: a floating top pill
+  (launcher dot, capsule workspaces, dot-matrix `HH:MM:SS`, segmented
+  CPU/MEM/VOL/NET/BAT pills, power) plus a floating **right widget rail**
+  (big Doto time, date, weather, system cards) modeled on the reference
+  layout — monochrome, no gradients.
+- Weather comes from `scripts/nothing-weather` (wttr.in, 30-minute cache,
+  prints `—` offline; installed to `~/.local/bin`).
 - Helpers you already have are reused: grim/slurp/swappy, cliphist,
   hyprlock, hyprpaper, hypridle, pamixer, brightnessctl, playerctl,
   eza/zoxide/fzf/bat (all optional with graceful fallbacks).
 
 ### Noctalia: deliberately omitted
 
-Noctalia Shell is **not installed** on this system and is **not included**.
+Noctalia Shell is **not included** in this rice. If your session was running
+it (as here), the installer does not stop it — after installing, run
+`hyprctl reload`, start `waybar` + `swaync` + `hyprpaper` (or just log out
+and back in: `autostart.conf` launches them), then quit Noctalia so the two
+shells don't stack bars. To go back, start `noctalia` again and
+`pkill waybar`.
 Waybar + Fuzzel + SwayNC cover bar, launcher and notifications with a
 smaller, actively maintained footprint and zero overlapping daemons
 (SwayNC is the single notification daemon — dunst stays off; Fuzzel is the
@@ -170,7 +182,12 @@ Minimize semantics: `SUPER+M` on a normal window shelves it to
   `-i` safety nets, `..`/`...`/`mkd` abbreviations, git shorthand,
   `theme`/`ff`/`y` abbreviations, zoxide/direnv/fzf hooks only if installed.
 - `conf.d/30-startup.fish`: fastfetch on interactive shells (skipped over
-  SSH/in yazi/deep nesting; `NOTHING_FF=0` mutes, `=1` forces).
+  SSH/in yazi/deep nesting; `NOTHING_FF=0` mutes, `=1` forces). A
+  per-process sentinel guarantees it runs at most once per shell, and
+  `config.fish` never re-sources `conf.d/` (fish does that itself —
+  double-sourcing used to print the greeting twice). The installer also
+  backs aside a pre-existing unmanaged `functions/fish_greeting.fish`,
+  which was a third greeting source.
 - `functions/`: `up N`, `mkcd`, `extract`, `ff`. All valid fish, checked by
   `fish -n` in CI and `scripts/check-configs`.
 
