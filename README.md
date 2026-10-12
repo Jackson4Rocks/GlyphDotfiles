@@ -54,13 +54,10 @@ nothing-dotfiles/
   these configs only activate inside a Hyprland session.
 - Shell: Fish. Terminal: Kitty. Files: Yazi. Sysinfo: Fastfetch.
 - Bar: Waybar. Launcher/picker: Fuzzel. Notifications: SwayNC.
-- The bar is a **dual setup from one waybar process**: a floating top pill
-  (launcher dot, capsule workspaces, dot-matrix `HH:MM:SS`, segmented
-  CPU/MEM/VOL/NET/BAT pills, power) plus a floating **right widget rail**
-  (big Doto time, date, weather, system cards) modeled on the reference
-  layout — monochrome, no gradients.
-- Weather comes from `scripts/nothing-weather` (wttr.in, 30-minute cache,
-  prints `—` offline; installed to `~/.local/bin`).
+- The bar is a single floating top pill: launcher dot, capsule workspaces
+  (empty = small dot, open windows = expanded bubble, focused = inverted),
+  dot-matrix 12-hour clock, icon segments for CPU/MEM/VOL/NET/BAT, tray,
+  power — monochrome, no gradients.
 - Helpers you already have are reused: grim/slurp/swappy, cliphist,
   hyprlock, hyprpaper, hypridle, pamixer, brightnessctl, playerctl,
   eza/zoxide/fzf/bat (all optional with graceful fallbacks).

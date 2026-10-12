@@ -259,7 +259,6 @@ else
     link_file "scripts/miniland" ".local/bin/miniland"
 fi
 link_file "scripts/theme-switcher" ".local/bin/nothing-theme-switch"
-link_file "scripts/nothing-weather" ".local/bin/nothing-weather"
 
 # ── 10. Done ─────────────────────────────────────────────────────────────
 # Drop the backup dir when nothing needed backing up (keeps "newest backup"
