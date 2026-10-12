@@ -1,0 +1,7 @@
+// NOTHING dotfiles — yazi keymap (Nothing glyph flavor, defaults kept)
+[manager]
+prepend_keymap = [
+  { on = [ "<C-p>" ], run = "plugin fzf", desc = "Fuzzy find files" },
+  { on = [ "g", "h" ], run = "cd ~", desc = "Go home" },
+  { on = [ "g", "c" ], run = "cd ~/.config", desc = "Go to config" },
+]

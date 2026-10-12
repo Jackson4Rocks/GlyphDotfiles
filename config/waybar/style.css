@@ -1,0 +1,86 @@
+/* NOTHING dotfiles — waybar */
+@import "nothing-theme.css";
+
+* {
+    font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: @bg;
+    color: @fg;
+    border: 1px solid @border;
+    border-radius: 17px;
+}
+
+#workspaces {
+    background: @surface;
+    border: 1px solid @border;
+    border-radius: 12px;
+    margin: 4px 0 4px 6px;
+    padding: 0 4px;
+}
+
+#workspaces button {
+    color: @faint;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    padding: 0 9px;
+    margin: 3px 1px;
+}
+
+#workspaces button.active {
+    color: @accent-fg;
+    background: @accent;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    color: @accent-fg;
+    background: @danger;
+}
+
+#window {
+    color: @muted;
+    margin-left: 10px;
+}
+
+#clock {
+    font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: @fg;
+    background: @surface;
+    border: 1px solid @border;
+    border-radius: 12px;
+    padding: 0 18px;
+    margin: 4px 0;
+}
+
+#cpu, #memory, #pulseaudio, #network, #battery, #tray, #custom-power {
+    color: @muted;
+    background: @surface;
+    border: 1px solid @border;
+    border-radius: 12px;
+    padding: 0 12px;
+    margin: 4px 0;
+}
+
+#pulseaudio.muted, #network.disconnected, #battery.critical {
+    color: @danger;
+}
+
+#custom-power {
+    color: @fg;
+    margin-right: 6px;
+}
+
+tooltip {
+    background: @surface;
+    color: @fg;
+    border: 1px solid @border;
+    border-radius: 8px;
+}

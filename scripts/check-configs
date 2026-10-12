@@ -1,0 +1,158 @@
+#!/bin/sh
+# check-configs — validate the repository without touching the system.
+# Exit 0 when everything checkable passes, 1 otherwise.
+set -eu
+
+REPO_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+fail=0
+
+ok()   { printf 'ok   %s\n' "$1"; }
+bad()  { printf 'FAIL %s\n' "$1"; fail=1; }
+
+# ── Fish syntax ──────────────────────────────────────────────────────────
+if command -v fish >/dev/null 2>&1; then
+    for f in "$REPO_DIR"/config/fish/config.fish \
+             "$REPO_DIR"/config/fish/conf.d/*.fish \
+             "$REPO_DIR"/config/fish/functions/*.fish \
+             "$REPO_DIR"/themes/*/fish-theme.fish; do
+        [ -e "$f" ] || continue
+        if fish -n "$f" 2>/dev/null; then
+            ok "fish -n $f"
+        else
+            bad "fish -n $f"
+        fi
+    done
+else
+    echo "SKIP fish checks (fish not installed)"
+fi
+
+# ── Shell scripts (POSIX) ────────────────────────────────────────────────
+for f in "$REPO_DIR"/install.sh "$REPO_DIR"/uninstall.sh \
+         "$REPO_DIR"/scripts/theme-switcher "$REPO_DIR"/scripts/check-configs \
+         "$REPO_DIR"/scripts/miniland "$REPO_DIR"/assets/fonts/install-fonts.sh; do
+    [ -e "$f" ] || continue
+    if sh -n "$f" 2>/dev/null; then
+        ok "sh -n $f"
+    else
+        bad "sh -n $f"
+    fi
+    if [ -x "$f" ]; then
+        ok "executable $f"
+    else
+        bad "not executable $f"
+    fi
+done
+if command -v shellcheck >/dev/null 2>&1; then
+    for f in "$REPO_DIR"/install.sh "$REPO_DIR"/uninstall.sh "$REPO_DIR"/scripts/theme-switcher; do
+        if shellcheck -S warning "$f" >/dev/null 2>&1; then
+            ok "shellcheck $f"
+        else
+            bad "shellcheck $f"
+        fi
+    done
+else
+    echo "SKIP shellcheck (not installed)"
+fi
+
+# ── Hyprland: duplicate/conflicting binds ────────────────────────────────
+binds="$(grep -hE '^[[:space:]]*bind[em]?[[:space:]]*=' "$REPO_DIR"/config/hypr/keybinds.conf | sed 's/#.*//')"
+norm="$(printf '%s\n' "$binds" | sed 's/[ \t]//g; s/\$mainMod/SUPER/g')"
+dups="$(printf '%s\n' "$norm" | awk -F',' '{print $1","$2","$3}' | sort | uniq -d)"
+if [ -z "$dups" ]; then
+    ok "hypr keybinds: no duplicate MOD+KEY combos"
+else
+    bad "hypr keybinds: duplicates: $dups"
+fi
+for req in "SUPER,M," "SUPERSHIFT,N," "SUPERALT,M,"; do
+    key="$(printf '%s' "$req" | tr -d ' ')"
+    if printf '%s\n' "$norm" | grep -q "$key"; then
+        ok "hypr keybinds: required combo present ($req)"
+    else
+        bad "hypr keybinds: required combo MISSING ($req)"
+    fi
+done
+if command -v hyprland >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+    # Native validation in an isolated HOME (never touches the real session).
+    # NOTE: hyprland exits 0 even with errors, so grep the output.
+    for t in amoled-black pure-white; do
+        vh="$(mktemp -d)"
+        mkdir -p "$vh/.config/hypr"
+        for f in hyprland.conf appearance.conf keybinds.conf autostart.conf monitors.conf; do
+            ln -s "$REPO_DIR/config/hypr/$f" "$vh/.config/hypr/$f"
+        done
+        cp "$REPO_DIR/themes/$t/hypr-theme.conf" "$vh/.config/hypr/nothing-theme.conf"
+        vh_out="$(HOME="$vh" timeout 30 hyprland --verify-config -c "$vh/.config/hypr/hyprland.conf" 2>&1 || true)"
+        if printf '%s' "$vh_out" | grep -q 'Config error'; then
+            bad "hyprland --verify-config ($t): $(printf '%s' "$vh_out" | grep 'Config error' | sort -u | head -3)"
+        else
+            ok "hyprland --verify-config ($t)"
+        fi
+        rm -rf "$vh"
+    done
+else
+    echo "SKIP hyprland --verify-config (needs hyprland + timeout)"
+fi
+
+# ── Theme parity: every theme ships every artifact ───────────────────────
+artifacts="tokens.sh hypr-theme.conf kitty-theme.conf waybar-theme.css swaync-theme.css fuzzel-colors.ini fish-theme.fish yazi-theme.toml"
+for t in amoled-black pure-white; do
+    for a in $artifacts; do
+        if [ -f "$REPO_DIR/themes/$t/$a" ]; then
+            ok "theme $t/$a"
+        else
+            bad "theme $t/$a MISSING"
+        fi
+    done
+done
+
+# ── Cross-references: sources, includes, imports ─────────────────────────
+grep -q 'nothing-theme.conf' "$REPO_DIR/config/hypr/hyprland.conf" \
+    && ok "hypr sources nothing-theme.conf" || bad "hypr missing theme source"
+grep -q 'include nothing-theme.conf' "$REPO_DIR/config/kitty/kitty.conf" \
+    && ok "kitty includes nothing-theme.conf" || bad "kitty missing theme include"
+grep -q '@import "nothing-theme.css"' "$REPO_DIR/config/waybar/style.css" \
+    && ok "waybar imports nothing-theme.css" || bad "waybar missing theme import"
+grep -q '@import "nothing-theme.css"' "$REPO_DIR/config/swaync/style.css" \
+    && ok "swaync imports nothing-theme.css" || bad "swaync missing theme import"
+grep -q 'NOTHING-THEME-BEGIN' "$REPO_DIR/config/fuzzel/fuzzel.ini" \
+    && grep -q 'NOTHING-THEME-END' "$REPO_DIR/config/fuzzel/fuzzel.ini" \
+    && ok "fuzzel has managed theme block" || bad "fuzzel missing theme markers"
+grep -q 'nothing-theme.fish' "$REPO_DIR/config/fish/config.fish" \
+    && ok "fish sources nothing-theme.fish" || bad "fish missing theme source"
+
+# ── JSON / TOML sanity ───────────────────────────────────────────────────
+if command -v python3 >/dev/null 2>&1; then
+    for j in "$REPO_DIR"/config/waybar/config.jsonc "$REPO_DIR"/config/swaync/config.json "$REPO_DIR"/config/fastfetch/config.jsonc; do
+        # jsonc: strip full-line // comments only (inline URLs must survive)
+        if python3 -c "import json,re,sys; t=open('$j').read(); t='\n'.join(l for l in t.splitlines() if not re.match(r'\s*//',l)); json.loads(t)" 2>/dev/null; then
+            ok "json $j"
+        else
+            bad "json $j"
+        fi
+    done
+    for t in "$REPO_DIR"/config/yazi/yazi.toml "$REPO_DIR"/themes/*/yazi-theme.toml; do
+        if python3 -c "import tomllib; tomllib.load(open('$t','rb'))" 2>/dev/null; then
+            ok "toml $t"
+        else
+            bad "toml $t"
+        fi
+    done
+else
+    echo "SKIP json/toml checks (python3 missing)"
+fi
+
+# ── No hardcoded contradictory colors ────────────────────────────────────
+# Base configs must not hardcode #000/#fff backgrounds; colors belong
+# to the theme fragments.
+if grep -rnEi 'background[ ]+(#000000|#ffffff|black|white)' "$REPO_DIR/config/kitty/kitty.conf" >/dev/null 2>&1; then
+    bad "kitty.conf hardcodes a background color"
+else
+    ok "kitty.conf defers colors to theme"
+fi
+
+if [ "$fail" -eq 0 ]; then
+    echo "ALL CHECKS PASSED"
+else
+    echo "CHECKS FAILED" >&2
+fi
+exit "$fail"

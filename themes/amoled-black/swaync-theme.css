@@ -1,0 +1,12 @@
+/* NOTHING theme fragment — AMOLED BLACK (swaync) */
+/* Installed to ~/.config/swaync/nothing-theme.css */
+@define-color bg #000000;
+@define-color surface #0a0a0a;
+@define-color surface2 #141414;
+@define-color fg #ffffff;
+@define-color muted #a3a3a3;
+@define-color faint #6e6e6e;
+@define-color border #262626;
+@define-color accent #ffffff;
+@define-color accent-fg #000000;
+@define-color danger #ff5252;

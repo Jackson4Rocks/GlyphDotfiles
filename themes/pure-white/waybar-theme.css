@@ -1,0 +1,12 @@
+/* NOTHING theme fragment — PURE WHITE (waybar) */
+/* Installed to ~/.config/waybar/nothing-theme.css */
+@define-color bg #ffffff;
+@define-color surface #f4f4f4;
+@define-color surface2 #e7e7e7;
+@define-color fg #000000;
+@define-color muted #525252;
+@define-color faint #8a8a8a;
+@define-color border #d4d4d4;
+@define-color accent #000000;
+@define-color accent-fg #ffffff;
+@define-color danger #d92626;

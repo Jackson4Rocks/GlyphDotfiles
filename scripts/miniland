@@ -1,0 +1,312 @@
+#!/bin/sh
+set -eu
+
+STATE_DIR="$HOME/.local/state/miniland"
+STATE_FILE="$STATE_DIR/state.json"
+SPECIAL_WORKSPACE="special:miniland"
+
+die() { printf '%s\n' "miniland: $*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"; }
+notify() {
+    command -v notify-send >/dev/null 2>&1 &&
+        notify-send -a Miniland "Miniland" "$1" >/dev/null 2>&1 ||
+        true
+}
+
+need hyprctl
+need jq
+
+mkdir -p "$STATE_DIR"
+[ -f "$STATE_FILE" ] || printf '%s\n' '[]' > "$STATE_FILE"
+
+clients_json() { hyprctl clients -j; }
+active_window() { hyprctl activewindow -j; }
+active_workspace_id() { hyprctl activeworkspace -j | jq -r '.id'; }
+
+is_alive() {
+    clients_json | jq -e --arg a "$1" 'any(.[]; .address == $a)' >/dev/null 2>&1
+}
+
+remove_state() {
+    tmp="$STATE_FILE.tmp"
+    jq --arg a "$1" 'map(select(.address != $a))' "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+}
+
+prune() {
+    clients="$(clients_json)"
+    tmp="$STATE_FILE.tmp"
+    jq --argjson clients "$clients" \
+       'map(. as $w | select(any($clients[]; .address == $w.address)))' \
+       "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+}
+
+remember() {
+    address="$1"
+    workspace="$2"
+    name="$3"
+    monitor="$4"
+    title="$5"
+    class="$6"
+    pid="$7"
+    tmp="$STATE_FILE.tmp"
+
+    jq \
+      --arg address "$address" \
+      --arg workspace "$workspace" \
+      --arg name "$name" \
+      --arg monitor "$monitor" \
+      --arg title "$title" \
+      --arg class "$class" \
+      --arg pid "$pid" '
+      if any(.[]; .address == $address) then .
+      else . + [{
+        address:$address,
+        workspace_id:$workspace,
+        workspace_name:$name,
+        monitor:$monitor,
+        title:$title,
+        class:$class,
+        pid:$pid,
+        minimized_at:(now|floor)
+      }]
+      end
+    ' "$STATE_FILE" > "$tmp"
+
+    mv "$tmp" "$STATE_FILE"
+}
+
+restore_to() {
+    address="$1"
+    workspace="$2"
+
+    entry="$(jq -c --arg a "$address" 'map(select(.address == $a)) | .[0]' "$STATE_FILE")"
+    [ "$entry" != "null" ] || die "window is not tracked as minimized"
+
+    if ! is_alive "$address"; then
+        remove_state "$address"
+        die "that window no longer exists"
+    fi
+
+    [ -n "$workspace" ] || die "target workspace is invalid"
+
+    hyprctl dispatch movetoworkspacesilent "id:$workspace,address:$address" >/dev/null
+    hyprctl dispatch focuswindow "address:$address" >/dev/null 2>&1 || true
+    remove_state "$address"
+}
+
+restore_saved() {
+    workspace="$(jq -r --arg a "$1" \
+        'map(select(.address == $a)) | .[0].workspace_id // empty' \
+        "$STATE_FILE")"
+
+    [ -n "$workspace" ] || die "saved workspace is invalid"
+    restore_to "$1" "$workspace"
+}
+
+minimize() {
+    window="$(active_window)"
+    address="$(printf '%s' "$window" | jq -r '.address // empty')"
+    [ -n "$address" ] || die "no focused window"
+
+    workspace_name="$(printf '%s' "$window" | jq -r '.workspace.name // empty')"
+
+    if [ "$workspace_name" = "$SPECIAL_WORKSPACE" ]; then
+        restore_saved "$address"
+        return
+    fi
+
+    workspace_id="$(printf '%s' "$window" | jq -r '.workspace.id // empty')"
+    [ -n "$workspace_id" ] || die "could not determine the current workspace"
+
+    remember \
+      "$address" \
+      "$workspace_id" \
+      "$workspace_name" \
+      "$(printf '%s' "$window" | jq -r '.monitor // empty')" \
+      "$(printf '%s' "$window" | jq -r '.title // empty')" \
+      "$(printf '%s' "$window" | jq -r '.class // .initialClass // empty')" \
+      "$(printf '%s' "$window" | jq -r '.pid // empty')"
+
+    hyprctl dispatch movetoworkspacesilent \
+        "$SPECIAL_WORKSPACE,address:$address" >/dev/null
+}
+
+restore_last() {
+    prune
+    address="$(jq -r '.[-1].address // empty' "$STATE_FILE")"
+    [ -n "$address" ] || die "no minimized windows"
+    restore_saved "$address"
+}
+
+restore_index() {
+    index="$1"
+
+    case "$index" in
+        ''|*[!0-9]*) die "restore expects a number" ;;
+    esac
+
+    prune
+    count="$(jq 'length' "$STATE_FILE")"
+    [ "$index" -ge 1 ] && [ "$index" -le "$count" ] ||
+        die "no minimized window at index $index"
+
+    address="$(jq -r --argjson i "$index" '.[($i-1)].address' "$STATE_FILE")"
+    restore_saved "$address"
+}
+
+restore_all() {
+    prune
+    addresses="$(jq -r '.[].address' "$STATE_FILE")"
+    [ -n "$addresses" ] || die "no minimized windows"
+
+    printf '%s\n' "$addresses" |
+    while IFS= read -r address; do
+        [ -n "$address" ] && restore_saved "$address" || true
+    done
+}
+
+picker_backend() {
+    command -v fuzzel >/dev/null 2>&1 && { echo fuzzel; return; }
+    command -v wofi >/dev/null 2>&1 && { echo wofi; return; }
+    command -v rofi >/dev/null 2>&1 && { echo rofi; return; }
+    return 1
+}
+
+picker_entries() {
+    jq -r '
+      to_entries[] |
+      [
+        (.key+1),
+        (.value.class // "Unknown"),
+        ((.value.title // "Untitled") | gsub("[\t\r\n]"; " ")),
+        (.value.pid // "?"),
+        (.value.workspace_name // (.value.workspace_id | tostring))
+      ] | @tsv
+    ' "$STATE_FILE"
+}
+
+picker() {
+    prune
+    count="$(jq 'length' "$STATE_FILE")"
+
+    if [ "$count" -eq 0 ]; then
+        notify "No minimized windows."
+        printf '%s\n' "No minimized windows." >&2
+        printf '%s\n' "Use miniland minimize (or your minimize keybind) on a window first." >&2
+        return 0
+    fi
+
+    backend="$(picker_backend 2>/dev/null || true)"
+    if [ -z "$backend" ]; then
+        notify "Install fuzzel, wofi, or rofi-wayland/rofi for the graphical picker."
+        die "no graphical picker found"
+    fi
+
+    entries="$(picker_entries)"
+
+    case "$backend" in
+        fuzzel)
+            selected_index="$(printf '%s\n' "$entries" |
+                fuzzel --dmenu \
+                    --prompt 'Miniland: ' \
+                    --lines 12 \
+                    --minimal-lines \
+                    --with-nth='{2..}' \
+                    --index \
+                    2>/dev/null || true)"
+
+            [ -n "$selected_index" ] || return 0
+            index=$((selected_index + 1))
+            ;;
+        wofi)
+            selected="$(printf '%s\n' "$entries" |
+                wofi --dmenu \
+                    --insensitive \
+                    --matching fuzzy \
+                    --prompt 'Miniland' \
+                    --width 60% \
+                    --height 55% \
+                    2>/dev/null || true)"
+
+            [ -n "$selected" ] || return 0
+            index="$(printf '%s\n' "$selected" | awk -F '\t' '{print $1}')"
+            ;;
+        rofi)
+            selected="$(printf '%s\n' "$entries" |
+                rofi -dmenu -i -p 'Miniland' -matching fuzzy \
+                    2>/dev/null || true)"
+
+            [ -n "$selected" ] || return 0
+            index="$(printf '%s\n' "$selected" | awk -F '\t' '{print $1}')"
+            ;;
+    esac
+
+    case "$index" in
+        ''|*[!0-9]*) die "invalid picker selection" ;;
+    esac
+
+    target="$(active_workspace_id)"
+    [ -n "$target" ] || die "could not determine the current workspace"
+
+    address="$(jq -r --argjson i "$index" \
+        '.[($i-1)].address // empty' "$STATE_FILE")"
+
+    [ -n "$address" ] || die "selected window no longer exists"
+
+    restore_to "$address" "$target"
+}
+
+list_windows() {
+    prune
+    count="$(jq 'length' "$STATE_FILE")"
+
+    if [ "$count" -eq 0 ]; then
+        printf '%s\n' "No minimized windows."
+        return 0
+    fi
+
+    jq -r '
+      to_entries[] |
+      "\(.key+1)\t\(.value.class // "Unknown")\t\(.value.title // "Untitled")\tPID \(.value.pid // "?")\tworkspace \(.value.workspace_name // .value.workspace_id)"
+    ' "$STATE_FILE" |
+    while IFS="$(printf '\t')" read -r n class title pid workspace; do
+        printf '%s  %-22s  %s  [%s]  (%s)\n' \
+            "$n." "$class" "$title" "$pid" "$workspace"
+    done
+}
+
+usage() {
+    cat <<'EOF'
+Miniland - window minimizing for Hyprland
+
+Usage:
+  miniland minimize
+  miniland picker
+  miniland restore-last
+  miniland restore N
+  miniland restore-all
+  miniland list
+  miniland toggle-shelf
+  miniland help
+EOF
+}
+
+cmd="help"
+[ "$#" -ge 1 ] && cmd="$1"
+
+case "$cmd" in
+    minimize) minimize ;;
+    picker|menu|show) picker ;;
+    restore-last) restore_last ;;
+    restore)
+        [ "$#" -ge 2 ] || die "usage: miniland restore N"
+        restore_index "$2"
+        ;;
+    restore-all) restore_all ;;
+    list) list_windows ;;
+    toggle-shelf) hyprctl dispatch togglespecialworkspace miniland >/dev/null ;;
+    help|-h|--help) usage ;;
+    *) usage; exit 1 ;;
+esac

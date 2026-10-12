@@ -1,0 +1,47 @@
+/* NOTHING dotfiles — swaync (sole notification daemon; dunst stays off) */
+@import "nothing-theme.css";
+
+* {
+    font-family: "Doto", "JetBrainsMono Nerd Font", monospace;
+    border-radius: 0;
+}
+
+.notification-row { background: transparent; }
+.notification-row .notification-background {
+    background: @surface;
+    border: 1px solid @border;
+    border-radius: 14px;
+    padding: 10px;
+    margin: 6px;
+}
+
+.notification-row .notification-background .summary {
+    color: @fg;
+    font-weight: bold;
+}
+.notification-row .notification-background .body { color: @muted; }
+.notification-row .notification-background .time { color: @faint; }
+
+.control-center {
+    background: @bg;
+    border: 1px solid @border;
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.widget-title {
+    color: @fg;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+.widget-title button {
+    color: @accent-fg;
+    background: @accent;
+    border: none;
+    border-radius: 9px;
+    padding: 4px 12px;
+}
+.widget-dnd { color: @muted; }
+.widget-dnd switch:checked { background: @accent; }
+
+.notification.critical { border: 1px solid @danger; }

@@ -1,0 +1,117 @@
+#!/bin/sh
+# nothing-theme-switch — switch between amoled-black and pure-white.
+# Applies the theme to every supported component without touching
+# anything else. Safe to run repeatedly.
+set -eu
+
+# Resolve through symlinks: this script is symlinked to ~/.local/bin.
+SELF="$(readlink -f -- "$0" 2>/dev/null || printf '%s' "$0")"
+REPO_DIR="$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)"
+THEMES_DIR="$REPO_DIR/themes"
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/nothing/theme"
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+usage() {
+    cat <<'EOF'
+Usage: nothing-theme-switch [amoled-black|pure-white]
+
+Switches the NOTHING desktop theme. With no argument, shows the
+current theme and offers an interactive choice.
+EOF
+}
+
+current_theme() {
+    if [ -f "$STATE_FILE" ]; then
+        cat "$STATE_FILE"
+    else
+        echo "unknown"
+    fi
+}
+
+apply_theme() {
+    theme="$1"
+    theme_dir="$THEMES_DIR/$theme"
+    [ -d "$theme_dir" ] || { echo "nothing-theme-switch: unknown theme '$theme'" >&2; return 1; }
+
+    mkdir -p "$CONFIG_HOME/hypr" "$CONFIG_HOME/kitty" "$CONFIG_HOME/waybar" \
+             "$CONFIG_HOME/swaync" "$CONFIG_HOME/fuzzel" "$CONFIG_HOME/fish" \
+             "$CONFIG_HOME/yazi" "$(dirname -- "$STATE_FILE")"
+
+    cp "$theme_dir/hypr-theme.conf"   "$CONFIG_HOME/hypr/nothing-theme.conf"
+    cp "$theme_dir/kitty-theme.conf"  "$CONFIG_HOME/kitty/nothing-theme.conf"
+    cp "$theme_dir/waybar-theme.css"  "$CONFIG_HOME/waybar/nothing-theme.css"
+    cp "$theme_dir/swaync-theme.css"  "$CONFIG_HOME/swaync/nothing-theme.css"
+    cp "$theme_dir/fish-theme.fish"   "$CONFIG_HOME/fish/nothing-theme.fish"
+    cp "$theme_dir/yazi-theme.toml"   "$CONFIG_HOME/yazi/theme.toml"
+
+    # Wallpaper follows the theme (assets ship both variants).
+    case "$theme" in
+        amoled-black) wallpaper="nothing-black.png" ;;
+        pure-white)   wallpaper="nothing-white.png" ;;
+    esac
+    if [ -f "$REPO_DIR/assets/wallpapers/$wallpaper" ]; then
+        cp "$REPO_DIR/assets/wallpapers/$wallpaper" "$CONFIG_HOME/hypr/nothing-wallpaper.png"
+    fi
+
+    # Fuzzel has no include directive: replace the managed color block.
+    if [ -f "$CONFIG_HOME/fuzzel/fuzzel.ini" ]; then
+        tmp="$(mktemp)"
+        awk -v block="$theme_dir/fuzzel-colors.ini" '
+            /^# NOTHING-THEME-BEGIN/ {
+                while ((getline line < block) > 0) print line
+                close(block)
+                skip = 1
+                next
+            }
+            /^# NOTHING-THEME-END/ { skip = 0; next }
+            skip == 1 { next }
+            { print }
+        ' "$CONFIG_HOME/fuzzel/fuzzel.ini" > "$tmp"
+        mv "$tmp" "$CONFIG_HOME/fuzzel/fuzzel.ini"
+    fi
+
+    printf '%s\n' "$theme" > "$STATE_FILE"
+    echo "Theme applied: $theme"
+
+    # Live-reload what is already running; failures are non-fatal.
+    # (swaync-client -R can block on some builds, so it is guarded.)
+    command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
+    if command -v kitty >/dev/null 2>&1; then
+        for sock in "$XDG_RUNTIME_DIR"/kitty-* /tmp/kitty-*; do
+            [ -S "$sock" ] || continue
+            kitty @ --to "$sock" set-colors --all "$CONFIG_HOME/kitty/nothing-theme.conf" >/dev/null 2>&1 || true
+        done
+    fi
+    if command -v swaync-client >/dev/null 2>&1 && pgrep -x swaync >/dev/null 2>&1; then
+        if command -v timeout >/dev/null 2>&1; then
+            timeout 5 swaync-client -R >/dev/null 2>&1 || true
+        else
+            (swaync-client -R >/dev/null 2>&1 &)
+        fi
+    fi
+    pkill -USR2 waybar >/dev/null 2>&1 || pkill -RTMIN+8 waybar >/dev/null 2>&1 || true
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    usage
+    exit 0
+fi
+
+if [ "$#" -ge 1 ]; then
+    case "$1" in
+        amoled-black|pure-white) apply_theme "$1" ;;
+        *) usage >&2; exit 1 ;;
+    esac
+    exit 0
+fi
+
+echo "Current theme: $(current_theme)"
+echo "1. AMOLED BLACK — Pure black, white text"
+echo "2. PURE WHITE — Pure white, black text"
+printf 'Choose 1 or 2: '
+read -r choice
+case "$choice" in
+    1) apply_theme "amoled-black" ;;
+    2) apply_theme "pure-white" ;;
+    *) echo "Aborted: enter 1 or 2." >&2; exit 1 ;;
+esac

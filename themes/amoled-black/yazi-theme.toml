@@ -1,0 +1,75 @@
+# NOTHING theme — AMOLED BLACK (yazi)
+# Installed to ~/.config/yazi/theme.toml by install.sh / theme-switcher.
+
+[manager]
+cwd = { fg = "#ffffff", bold = true }
+hovered         = { fg = "#000000", bg = "#ffffff", bold = true }
+preview_hovered = { fg = "#000000", bg = "#ffffff", bold = true }
+find_keyword    = { fg = "#000000", bg = "#ffffff", bold = true }
+find_position   = { fg = "#ff5252", bold = true }
+marker_copied   = { fg = "#000000", bg = "#a3a3a3" }
+marker_cut      = { fg = "#000000", bg = "#ff5252" }
+marker_marked   = { fg = "#000000", bg = "#ffffff" }
+marker_selected = { fg = "#000000", bg = "#ffffff" }
+tab_active   = { fg = "#000000", bg = "#ffffff", bold = true }
+tab_inactive = { fg = "#a3a3a3", bg = "#0a0a0a" }
+tab_width = 2
+border_symbol = "│"
+border_style  = { fg = "#262626" }
+
+[status]
+separator_open  = ""
+separator_close = ""
+separator_style = { fg = "#262626", bg = "#000000" }
+progress_label  = { fg = "#ffffff", bold = true }
+progress_normal = { fg = "#262626", bg = "#262626" }
+progress_error  = { fg = "#ff5252", bg = "#262626" }
+perm_type  = { fg = "#ffffff" }
+perm_read  = { fg = "#a3a3a3" }
+perm_write = { fg = "#a3a3a3" }
+perm_exec  = { fg = "#ffffff", bold = true }
+perm_sep   = { fg = "#6e6e6e" }
+
+[input]
+border   = { fg = "#ffffff" }
+title    = { fg = "#ffffff", bold = true }
+value    = { fg = "#ffffff" }
+selected = { fg = "#000000", bg = "#ffffff" }
+
+[select]
+border  = { fg = "#ffffff" }
+active  = { fg = "#000000", bg = "#ffffff", bold = true }
+inactive = { fg = "#a3a3a3" }
+
+[tasks]
+border  = { fg = "#ffffff" }
+title   = { fg = "#ffffff", bold = true }
+hovered = { fg = "#000000", bg = "#ffffff" }
+
+[which]
+cols = 3
+mask = { bg = "#000000" }
+cand = { fg = "#a3a3a3" }
+rest = { fg = "#6e6e6e" }
+desc = { fg = "#ff5252" }
+separator = "  "
+separator_style = { fg = "#6e6e6e" }
+
+[help]
+on      = { fg = "#ffffff", bold = true }
+run     = { fg = "#a3a3a3" }
+desc    = { fg = "#6e6e6e" }
+hovered = { fg = "#000000", bg = "#ffffff", bold = true }
+footer  = { fg = "#000000", bg = "#ffffff" }
+
+[filetype]
+rules = [
+  { mime = "image/*",  fg = "#ffffff" },
+  { mime = "video/*",  fg = "#ffffff", bold = true },
+  { mime = "audio/*",  fg = "#a3a3a3" },
+  { mime = "application/zip",             fg = "#ff5252" },
+  { mime = "application/gzip",            fg = "#ff5252" },
+  { mime = "application/x-{tar,bzip*,xz}", fg = "#ff5252" },
+  { name = "*", is = "orphan", fg = "#ff5252" },
+  { name = "*", is = "exec",   fg = "#ffffff", bold = true },
+]

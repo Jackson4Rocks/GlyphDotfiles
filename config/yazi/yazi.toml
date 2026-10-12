@@ -1,0 +1,48 @@
+# NOTHING dotfiles — yazi
+# Theme lives in theme.toml (managed by install.sh / theme-switcher).
+
+[manager]
+show_hidden = false
+show_symlink = true
+sort_by = "alphabetical"
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+linemode = "size"
+
+[preview]
+tab_size = 2
+max_width = 600
+max_height = 900
+image_filter = "triangle"
+image_quality = 75
+sixle_format = "sixel"
+
+[opener]
+edit = [
+  { run = 'nvim "$@"', block = true, for = "unix" },
+]
+open = [
+  { run = 'xdg-open "$@"', desc = "Open", for = "linux" },
+]
+play = [
+  { run = 'xdg-open "$@"', desc = "Play", for = "linux" },
+]
+
+[open]
+rules = [
+  { name = "*.{jpg,jpeg,png,gif,webp,svg,ico,bmp}", use = "open" },
+  { name = "*.{mp4,mkv,webm,avi,mov}", use = "play" },
+  { name = "*.{mp3,flac,wav,ogg,opus,m4a}", use = "play" },
+  { name = "*.{pdf,epub}", use = "open" },
+  { name = "*.{zip,tar,gz,bz2,xz,7z,rar}", use = "open" },
+  { name = "*/", use = [ "edit", "open" ] },
+  { name = "*", use = [ "edit", "open" ] },
+]
+
+[tasks]
+image_alloc = 536870912
+image_bound = [ 4080, 4080 ]
+
+[input]
+cursor_blink = false
