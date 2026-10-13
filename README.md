@@ -53,7 +53,8 @@ nothing-dotfiles/
 - OS: Arch Linux, CachyOS (other Arch-likes work with `--force-os`).
 - Session: Hyprland on Wayland. KDE Plasma or other WMs are **not replaced**;
   these configs only activate inside a Hyprland session.
-- Shell: Fish. Terminal: Kitty. Files: Yazi. Sysinfo: Fastfetch.
+- Shell: Fish. Terminal: Kitty. Files: Yazi. Sysinfo: Fastfetch with a
+  Saturn ASCII logo (artwork: "Saturn" by Joan G. Stark, via asciiart.eu).
 - **Base desktop shell: Noctalia v5** (bar, launcher, notifications,
   control center, session menu, lockscreen, wallpaper — see below).
   Waybar + Fuzzel + SwayNC configs ship as a documented fallback but are
@@ -149,7 +150,7 @@ have an older keybind map, open an issue and they will be reconciled.
 | ★ `SUPER + SHIFT + N` | Open the Miniland picker (restore minimized windows) |
 | ★ `SUPER + ALT + M` | Toggle the Miniland shelf (show/hide minimized windows) |
 | [NEW] `SUPER + RETURN` | Terminal (kitty) |
-| [NEW] `SUPER + E` | File manager (yazi in kitty) |
+| [NEW] `SUPER + E` | File manager (Dolphin; `yazi` stays installed for terminal use) |
 | [NEW] `SUPER + B` | Browser (xdg-open) |
 | [NEW] `SUPER + D` / `SUPER + SPACE` | App picker/search (Noctalia launcher) |
 | [NEW] `SUPER + S` / `SUPER + V` / `SUPER + W` | Control center / clipboard history / wallpaper (Noctalia) |
@@ -178,7 +179,6 @@ Minimize semantics: `SUPER+M` on a normal window shelves it to
 `miniland minimize|picker|restore-last|restore N|restore-all|list|toggle-shelf`.
 
 ## Fish shell
-
 - Prompt (`conf.d/20-prompt.fish`): `●` status capsule, compact `…/` path,
   `◈ branch` git dot (`*` when dirty, red), `❯` marker, muted `HH:MM` right
   prompt. Builtins only — fast even in huge repos (one `git branch` call;
